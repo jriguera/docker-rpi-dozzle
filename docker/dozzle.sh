@@ -18,13 +18,8 @@ then
     [ -n "${DOZZLE_TAILSIZE}" ] && CMD="${CMD} --tailSize ${DOZZLE_TAILSIZE}"
     [ -n "${DOZZLE_FILTER}" ] && CMD="${CMD} --filter ${DOZZLE_FILTER}"
     [ -n "${DOZZLE_WEBBASE}" ] && CMD="${CMD} --base ${DOZZLE_WEBBASE}"
-    # allow the container to be started with `--user`
-    if [ "$(id -u)" == "0" ]
-    then
-        exec su-exec dozzle ${CMD}
-    else
-        exec ${CMD}
-    fi
+
+    exec ${CMD}
 else
     exec "$@"
 fi

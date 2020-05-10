@@ -4,9 +4,13 @@
 # docker run --name logging -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock -d dozzle
 
 ARG ARCH=arm32v6
+ARG VERSION=1.24.1
+
+FROM "amir20/dozzle:v${VERSION}" as dozzle
 FROM "${ARCH}/alpine:3.11"
 
-ARG VERSION=1.20.21
+ARG ARCH
+ARG VERSION
 ARG MYVERSION=jose0
 ARG PORT=8080
 ARG UID=1000
@@ -51,21 +55,15 @@ RUN set -xe                                                                 && \
     rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*
 
 
+COPY --from=dozzle /dozzle /usr/local/bin/dozzle
 COPY *.sh /usr/local/bin/
 
 RUN set -xe                                                                 && \
     chmod a+x /usr/local/bin/*                                              && \
-    ln -s /usr/local/bin/dozzle.sh /usr/local/bin/docker-entrypoint.sh   && \
-    ln -s /usr/local/bin/dozzle.sh /docker-entrypoint.sh                 && \
-    ln -s /usr/local/bin/dozzle.sh /run.sh                               && \
+    ln -s /usr/local/bin/dozzle.sh /usr/local/bin/docker-entrypoint.sh      && \
+    ln -s /usr/local/bin/dozzle.sh /docker-entrypoint.sh                    && \
+    ln -s /usr/local/bin/dozzle.sh /run.sh                                  && \
     mkdir -p /docker-entrypoint-initdb.d
-
-RUN set -ex                                                                 && \
-    [ "${ARCH}" == "arm32v6" ] && wget --quiet -O /tmp/dozzle.tgz "https://github.com/amir20/dozzle/releases/download/v${VERSION}/dozzle_${VERSION}_Linux_ARM_32-bitv6.tar.gz"; \
-    [ "${ARCH}" == "amd64" ] && wget --quiet -O /tmp/dozzle.tgz "https://github.com/amir20/dozzle/releases/download/v${VERSION}/dozzle_${VERSION}_Linux_64-bit.tar.gz"; \
-    tar -C /usr/bin -xvf /tmp/dozzle.tgz dozzle                             && \
-    chmod +x /usr/bin/dozzle                                                && \
-    rm -f /tmp/dozzle.tgz
 
 EXPOSE "${PORT}"
 HEALTHCHECK --interval=1m --timeout=3s CMD curl -f http://127.0.0.1:$PORT/ || exit 1
