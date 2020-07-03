@@ -4,10 +4,10 @@
 # docker run --name logging -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock -d dozzle
 
 ARG ARCH=arm32v6
-ARG VERSION=1.28.0
+ARG VERSION=2.0.5
 
 FROM "amir20/dozzle:v${VERSION}" as dozzle
-FROM "${ARCH}/alpine:3.11"
+FROM "${ARCH}/alpine:3.12"
 
 ARG ARCH
 ARG VERSION
